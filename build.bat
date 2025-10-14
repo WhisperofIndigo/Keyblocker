@@ -16,8 +16,8 @@ echo Creating version file...
 (
 echo VSVersionInfo^(
 echo   ffi=FixedFileInfo^(
-echo     filevers=^(1, 0, 0, 0^),
-echo     prodvers=^(1, 0, 0, 0^),
+echo     filevers=^(1, 1, 0, 0^),
+echo     prodvers=^(1, 1, 0, 0^),
 echo     mask=0x3f,
 echo     flags=0x0,
 echo     OS=0x40004,
@@ -32,12 +32,12 @@ echo       StringTable^(
 echo         u'040904B0',
 echo         [StringStruct^(u'CompanyName', u'Whisper of Indigo'^),
 echo         StringStruct^(u'FileDescription', u'Keyboard Blocker - Block keyboard with hotkey'^),
-echo         StringStruct^(u'FileVersion', u'1.0.0.0'^),
+echo         StringStruct^(u'FileVersion', u'1.1.0.0'^),
 echo         StringStruct^(u'InternalName', u'KeyboardBlocker'^),
-echo         StringStruct^(u'LegalCopyright', u'© 2024 Whisper of Indigo'^),
+echo         StringStruct^(u'LegalCopyright', u'© 2025 Whisper of Indigo'^),
 echo         StringStruct^(u'OriginalFilename', u'KeyboardBlocker.exe'^),
 echo         StringStruct^(u'ProductName', u'Keyboard Blocker'^),
-echo         StringStruct^(u'ProductVersion', u'1.0.0.0'^)]^)
+echo         StringStruct^(u'ProductVersion', u'1.1.0.0'^)]^)
 echo       ]^), 
 echo     VarFileInfo^([VarStruct^(u'Translation', [1033, 1200]^)]^)
 echo   ]
