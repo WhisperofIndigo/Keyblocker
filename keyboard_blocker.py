@@ -9,6 +9,16 @@ from PIL import Image, ImageDraw
 import time
 import json
 
+def is_already_running():
+    mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\KeyboardBlockerSingleInstance")
+    last_error = ctypes.windll.kernel32.GetLastError()
+    # Если код ошибки 183 — объект (mutex) уже существует → программа уже запущена
+    if last_error == 183:
+        ctypes.windll.user32.MessageBoxW(0, "Keyboard Blocker уже запущен.", "Keyboard Blocker", 0x40)
+        sys.exit()
+
+is_already_running()
+
 # ===== СИСТЕМА ЛОКАЛИЗАЦИИ =====
 class Localization:
     def __init__(self):

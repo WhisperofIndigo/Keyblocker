@@ -37,5 +37,3 @@ Name: "{autodesktop}\Keyboard Blocker"; Filename: "{app}\KeyboardBlocker.exe"; W
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 
-[Run]
-Filename: "{app}\KeyboardBlocker.exe"; Description: "{cm:LaunchProgram,Keyboard Blocker}"; Flags: nowait postinstall skipifsilent
