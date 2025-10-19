@@ -3,7 +3,7 @@ chcp 65001 >nul
 echo ========================================
 echo KeyboardBlocker Complete Build Script
 echo Author: Whisper of Indigo
-echo Version: 1.2.0
+echo Version: 1.2.1
 echo ========================================
 echo.
 
@@ -84,12 +84,12 @@ echo       StringTable^(
 echo         u'040904B0',
 echo         [StringStruct^(u'CompanyName', u'Whisper of Indigo'^),
 echo         StringStruct^(u'FileDescription', u'Keyboard Blocker - Block keyboard with hotkey'^),
-echo         StringStruct^(u'FileVersion', u'1.2.0.0'^),
+echo         StringStruct^(u'FileVersion', u'1.2.1.0'^),
 echo         StringStruct^(u'InternalName', u'KeyboardBlocker'^),
 echo         StringStruct^(u'LegalCopyright', u'© 2025 Whisper of Indigo'^),
 echo         StringStruct^(u'OriginalFilename', u'KeyboardBlocker.exe'^),
 echo         StringStruct^(u'ProductName', u'Keyboard Blocker'^),
-echo         StringStruct^(u'ProductVersion', u'1.2.0.0'^)]^)
+echo         StringStruct^(u'ProductVersion', u'1.2.1.0'^)]^)
 echo       ]^), 
 echo     VarFileInfo^([VarStruct^(u'Translation', [1033, 1200]^)]^)
 echo   ]

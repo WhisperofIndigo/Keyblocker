@@ -13,7 +13,7 @@ import subprocess
 import tkinter as tk
 from tkinter import messagebox
 
-CURRENT_VERSION = "v1.2.0"
+CURRENT_VERSION = "v1.2.1"
 
 def check_for_updates():
     """Проверка обновлений на GitHub"""

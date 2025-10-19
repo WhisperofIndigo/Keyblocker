@@ -1,11 +1,11 @@
 ; ==============================
 ; Keyboard Blocker Setup Script
 ; Author: Whisper of Indigo
-; Version: 1.2.0
+; Version: 1.2.1
 ; ==============================
 
 #define MyAppName "Keyboard Blocker"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.2.1"
 #define MyAppPublisher "Whisper of Indigo"
 #define MyAppURL "https://github.com/whisperofindigo"
 #define MyAppExeName "KeyboardBlocker.exe"
@@ -42,8 +42,8 @@ SolidCompression=yes
 WizardStyle=modern
 WizardSizePercent=100,100
 
-; Языки
-ShowLanguageDialog=auto
+; Языки - теперь всегда показывается диалог выбора языка (если нужен всегда язык системы: ShowLanguageDialog=auto)
+ShowLanguageDialog=yes
 
 ; Остановка процессов
 CloseApplications=yes
@@ -83,7 +83,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Run]
 ; Запустить после установки
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runascurrentuser shellexec
 
 [UninstallDelete]
 ; Удаляем все файлы и папки при деинсталляции
@@ -145,6 +145,72 @@ begin
   if CurStep = ssPostInstall then
   begin
     // Можно добавить дополнительные действия после установки
+  end;
+end;
+
+// Закрытие программы перед удалением
+function InitializeUninstall(): Boolean;
+var
+  ResultCode: Integer;
+  ErrorCode: Integer;
+  RetryCount: Integer;
+begin
+  Result := True;
+  RetryCount := 0;
+  
+  while (RetryCount < 3) do
+  begin
+    if CheckForMutexes('Global\KeyboardBlockerSingleInstance') then
+    begin
+      Exec('taskkill', '/F /IM KeyboardBlocker.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Sleep(1500);
+      
+      if not CheckForMutexes('Global\KeyboardBlockerSingleInstance') then
+        Exit;
+      
+      RetryCount := RetryCount + 1;
+    end
+    else
+      Exit;
+  end;
+  
+  if CheckForMutexes('Global\KeyboardBlockerSingleInstance') then
+  begin
+    ErrorCode := MsgBox(
+      'Keyboard Blocker сейчас запущена. Пожалуйста, закройте программу вручную (из трея), затем нажмите OK.' + #13#10#13#10 +
+      'Keyboard Blocker is currently running. Please close the program manually (from tray), after click OK.' + #13#10#13#10 +
+      'Нажмите Cancel для отмены удаления / Click Cancel to abort uninstall.',
+      mbError, MB_OKCANCEL);
+    
+    if ErrorCode = IDCANCEL then
+    begin
+      Result := False;
+      Exit;
+    end;
+    
+    Sleep(2000);
+    
+    if CheckForMutexes('Global\KeyboardBlockerSingleInstance') then
+    begin
+      MsgBox(
+        'Программа все еще запущена. Деинсталляция отменена.' + #13#10#13#10 +
+        'The program is still running. Uninstall cancelled.',
+        mbError, MB_OK);
+      Result := False;
+    end;
+  end;
+end;
+
+// Очистка оставшихся файлов
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  AppDir: String;
+  ResultCode: Integer;
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    AppDir := ExpandConstant('{app}');
+    Exec('cmd.exe', '/c timeout /t 2 && rd /s /q "' + AppDir + '"', '', SW_HIDE, ewNoWait, ResultCode);
   end;
 end;
 
