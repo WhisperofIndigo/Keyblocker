@@ -8,6 +8,101 @@ from pystray import MenuItem as item
 from PIL import Image, ImageDraw
 import time
 import json
+import requests
+import subprocess
+import tkinter as tk
+from tkinter import messagebox
+
+CURRENT_VERSION = "v1.2.0"
+
+def check_for_updates():
+    """Проверка обновлений на GitHub"""
+    try:
+        url = "https://api.github.com/repos/WhisperofIndigo/Keyblocker/releases/latest"
+        response = requests.get(url, timeout=5)
+        
+        if response.status_code != 200:
+            log_message(f"Update check failed: HTTP {response.status_code}")
+            return
+        
+        data = response.json()
+        latest_version = data.get("tag_name", "")
+        release_url = data.get("html_url", "")
+        
+        # Ищем установщик
+        installer_url = None
+        for asset in data.get("assets", []):
+            if asset["name"].endswith(".exe"):
+                installer_url = asset["browser_download_url"]
+                break
+        
+        if not installer_url:
+            log_message("No installer found in latest release")
+            return
+        
+        # Сравниваем версии
+        if latest_version != CURRENT_VERSION:
+            log_message(f"New version available: {latest_version} (current: {CURRENT_VERSION})")
+            
+            root = tk.Tk()
+            root.withdraw()
+            root.attributes('-topmost', True)
+            
+            message = (
+                f"Доступна новая версия {latest_version}\n"
+                f"Текущая версия: {CURRENT_VERSION}\n\n"
+                f"Обновить сейчас?\n\n"
+                f"Программа будет закрыта и запущен установщик."
+            )
+            
+            result = messagebox.askyesno(
+                "Доступно обновление",
+                message,
+                parent=root
+            )
+            
+            if result:
+                # Запускаем UpdateHelper
+                updater_path = os.path.join(
+                    os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__),
+                    "UpdateHelper.exe"
+                )
+                
+                if not os.path.exists(updater_path):
+                    messagebox.showerror(
+                        "Ошибка",
+                        f"UpdateHelper.exe не найден:\n{updater_path}",
+                        parent=root
+                    )
+                    root.destroy()
+                    return
+                
+                try:
+                    # Запускаем UpdateHelper с URL установщика
+                    subprocess.Popen([updater_path, installer_url], shell=False)
+                    log_message("Update helper launched, exiting...")
+                    root.destroy()
+                    
+                    # Завершаем программу
+                    if icon:
+                        icon.stop()
+                    os._exit(0)
+                    
+                except Exception as e:
+                    messagebox.showerror(
+                        "Ошибка",
+                        f"Не удалось запустить обновление:\n{e}",
+                        parent=root
+                    )
+            
+            root.destroy()
+        else:
+            log_message(f"Already running latest version: {CURRENT_VERSION}")
+            
+    except requests.exceptions.RequestException as e:
+        log_message(f"Network error checking for updates: {e}")
+    except Exception as e:
+        log_message(f"Error checking for updates: {e}")
 
 def is_already_running():
     mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\KeyboardBlockerSingleInstance")
@@ -580,11 +675,11 @@ def main():
     """Главная функция"""
     global is_blocked
     
-    # Убеждаемся, что при старте блокировка выключена
+    #Убеждаемся, что при старте блокировка выключена
     is_blocked = False
     
     log_message("=" * 60)
-    log_message(f"{loc.get('app_name')} v1.0")
+    log_message(f"{loc.get('app_name')} {CURRENT_VERSION}")
     log_message("=" * 60)
     
     # Проверяем права администратора
@@ -602,6 +697,7 @@ def main():
         return
     
     log_message(loc.get('launched_admin'))
+    check_for_updates()
     log_message(f"\n{loc.get('use_hotkey')}")
     log_message(loc.get('use_tray'))
     log_message("=" * 60)
